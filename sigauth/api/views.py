@@ -1,4 +1,4 @@
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view,permission_classes,throttle_classes
 from rest_framework.serializers import Serializer, ImageField
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
@@ -8,6 +8,7 @@ import torchvision.transforms as transforms
 from torchvision import models
 from PIL import Image
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.throttling import UserRateThrottle,AnonRateThrottle
 class SignatureImageSerializer(Serializer):
     image_1 = ImageField()
     image_2 = ImageField()
@@ -34,6 +35,7 @@ class SiameseResNet(nn.Module):
         return out1, out2
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([UserRateThrottle])
 def verify(request):
     try:
         serializer = SignatureImageSerializer(data=request.data)

@@ -1,9 +1,10 @@
 from django.contrib.auth.models import User
 from rest_framework.serializers import ModelSerializer,CharField,ValidationError
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view,permission_classes,throttle_classes
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK,HTTP_400_BAD_REQUEST,HTTP_201_CREATED
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.throttling import UserRateThrottle,AnonRateThrottle
 class UserSerializer(ModelSerializer):
     confirm_password = CharField(write_only=True)
     class Meta:
@@ -42,10 +43,11 @@ class UserSerializer(ModelSerializer):
         user.save()
         return user
 @api_view(['POST'])
+@throttle_classes([AnonRateThrottle])
 def create(request):
     try:
         serializer = UserSerializer(data=request.data)
-        serializer.is_valid()
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(
             {
@@ -61,6 +63,7 @@ def create(request):
         )
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([UserRateThrottle])
 def delete(request):
     try:
         request.user.delete()
