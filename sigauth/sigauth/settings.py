@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 SECRET_KEY = os.getenv('DSK')
 DEBUG = False
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['sigver.onrender.com','127.0.0.1','localhost']
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
