@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework.serializers import ModelSerializer,CharField,ValidationError
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK,HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_200_OK,HTTP_400_BAD_REQUEST,HTTP_201_CREATED
 class UserSerializer(ModelSerializer):
     confirm_password = CharField(write_only=True)
     class Meta:
@@ -42,7 +42,22 @@ class UserSerializer(ModelSerializer):
         return user
 @api_view(['POST'])
 def create(request):
-    pass
+    try:
+        serializer = UserSerializer(data=request.data)
+        serializer.is_valid()
+        serializer.save()
+        return Response(
+            {
+                "Status":"Account Creation Successful"
+            },status=HTTP_201_CREATED
+        )
+    except Exception as e:
+        return Response(
+            {
+                "Status":"Account Creation Failed",
+                "Error":str(e)
+            },status=HTTP_400_BAD_REQUEST
+        )
 @api_view(['POST'])
 def delete(request):
     try:
